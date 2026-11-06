@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Overview · Fieldnotes{% endblock %}
+{% block breadcrumb %}OVERVIEW{% endblock %}
+{% block content %}
+<section class="page-content">
+  <div class="page-heading">
+    <div><div class="eyebrow">COHORT OUTCOMES <span class="eyebrow-rule"></span> {{ cohort }}</div><h1>A clearer view<br>of what comes next.</h1><p class="heading-copy">Placement outcomes, skill signals, and compensation at a glance.</p></div>
+    <div class="heading-actions">
+      <form class="year-select" method="get" action="{{ url_for('dashboard') }}"><label for="year">GRADUATING CLASS</label><select id="year" name="year" onchange="this.form.submit()">{% for year in years %}<option value="{{ year }}" {% if year == cohort %}selected{% endif %}>Class of {{ year }}</option>{% endfor %}</select><span class="select-caret">⌄</span></form>
+      <a class="button button-dark" href="{{ url_for('reports_csv', year=cohort) }}"><span>↓</span> Export report</a>
+    </div>
+  </div>
+  {% if not connected %}<div class="data-notice"><span class="notice-symbol">i</span><span><strong>Preview data</strong> · Showing fictional sample records. Connect MySQL to work with your live cohort data.</span><a href="#setup-note">Database setup ↗</a></div>{% endif %}
+  <div class="metric-grid">
+    <article class="metric-card metric-primary"><div class="metric-label">PLACEMENT RATE <span class="metric-symbol">↗</span></div><div class="metric-value">{{ '%.1f'|format(placement_rate) }}<span>%</span></div><div class="metric-foot">{{ placed_count }} placed <span>/</span> {{ eligible_count }} eligible students</div><div class="metric-track"><span style="width: {{ [placement_rate, 100]|min }}%"></span></div></article>
+    <article class="metric-card"><div class="metric-label">AVERAGE PACKAGE <span class="metric-symbol">₹</span></div><div class="metric-value">{% if average_package is not none %}{{ '%.1f'|format(average_package) }}<small> LPA</small>{% else %}—{% endif %}</div><div class="metric-foot">Mean of each placed student's highest package</div><span class="metric-corner corner-orange"></span></article>
+    <article class="metric-card"><div class="metric-label">MEDIAN PACKAGE <span class="metric-symbol">⌁</span></div><div class="metric-value">{% if median_package is not none %}{{ '%.1f'|format(median_package) }}<small> LPA</small>{% else %}—{% endif %}</div><div class="metric-foot">A useful midpoint across the cohort</div><span class="metric-corner corner-yellow"></span></article>
+    <article class="metric-card"><div class="metric-label">LEADING EMPLOYER <span class="metric-symbol">✳</span></div><div class="metric-company">{{ top_company }}</div><div class="metric-foot">Most confirmed placements this cohort</div><span class="metric-corner corner-green"></span></article>
+  </div>
+  <div class="analysis-grid">
+    <section class="panel department-panel"><div class="panel-heading"><div><div class="eyebrow">01 / BY DEPARTMENT</div><h2>Placement outcomes</h2></div><span class="panel-unit">STUDENTS</span></div><div class="chart-wrap chart-wide"><img src="data:image/png;base64,{{ department_chart }}" alt="Bar chart comparing eligible and placed students by department"></div><div class="department-table"><div class="table-head"><span>DEPARTMENT</span><span>PLACED</span><span>RATE</span></div>{% for row in department_rows %}<div class="department-row"><span class="department-name"><i class="department-dot dot-{{ loop.index0 % 4 }}"></i>{{ row.department }}</span><span>{{ row.placed|int }} <small>/ {{ row.eligible|int }}</small></span><strong>{{ '%.0f'|format(row.rate) }}%</strong></div>{% else %}<div class="empty-state">No students in this cohort yet.</div>{% endfor %}</div></section>
+    <section class="panel package-panel"><div class="panel-heading"><div><div class="eyebrow">02 / COMPENSATION</div><h2>Package distribution</h2></div><span class="unit-tag">INR · LPA</span></div><div class="chart-wrap"><img src="data:image/png;base64,{{ package_chart }}" alt="Histogram of confirmed student package values in INR lakhs"></div><div class="chart-footnote"><span><i class="legend-dot"></i> Confirmed highest package per student</span><span>{{ placed_count }} records</span></div></section>
+    <section class="panel skills-panel"><div class="panel-heading"><div><div class="eyebrow">03 / SKILL SIGNALS</div><h2>Skills in the cohort</h2></div><span class="unit-tag">STUDENTS</span></div><div class="chart-wrap"><img src="data:image/png;base64,{{ skill_chart }}" alt="Horizontal bar chart showing how many students list each skill"></div><div class="skills-list">{% for skill in skills[:5] %}<div class="skill-item"><span class="skill-rank">{{ '%02d'|format(loop.index) }}</span><span>{{ skill.skill_name }}</span><strong>{{ skill.student_count }}</strong></div>{% else %}<div class="empty-state">No skill records yet.</div>{% endfor %}</div></section>
+  </div>
+  <section class="method-note" id="setup-note"><div class="method-mark">i</div><div><strong>How these numbers are measured</strong><p>Eligible denominator: all registered students in the selected graduation year. Placed: distinct students with a confirmed <code>placed</code> record. Package values are INR lakhs per annum (LPA); package statistics use each placed student's highest confirmed package. Repeated applications do not inflate placement counts.</p></div><a href="{{ url_for('login') }}">Manage data ↗</a></section>
+</section>
+{% endblock %}

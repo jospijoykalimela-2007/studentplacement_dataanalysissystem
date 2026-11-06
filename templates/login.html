@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Staff sign in · Fieldnotes{% endblock %}
+{% block breadcrumb %}STAFF ACCESS{% endblock %}
+{% block content %}
+<section class="login-page"><div class="login-intro"><div class="eyebrow">STAFF ACCESS <span class="eyebrow-rule"></span> PRIVATE WORKSPACE</div><h1>Good work starts<br>with good records.</h1><p>Sign in to manage student skills and placement records.</p></div><form class="login-form" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><label for="username">USERNAME</label><input id="username" name="username" autocomplete="username" required><label for="password">PASSWORD</label><input id="password" name="password" type="password" autocomplete="current-password" required><button class="button button-dark" type="submit">Sign in <span>→</span></button><span class="form-hint">Credentials are configured locally in your .env file.</span></form></section>
+{% endblock %}
